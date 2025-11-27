@@ -1,20 +1,27 @@
 import './App.css'
+import TodoList from './TodoList.jsx';
+import TodoForm from './TodoForm.jsx';
+
+const componentStyle = {
+    heading: {
+        textAlign: "center",
+        fontFamily: "Arial, sans-serif",
+        fontSize: "2rem",
+        color: "#333",
+        margin: "20px 0",
+        paddingBottom: "10px",
+        borderBottom: "2px solid #007bff",
+    },
+};
 
 function App() {
-const todoList = [
-    {id: 1, title: "review resources"},
-    {id: 2, title: "take notes"},
-    {id: 3, title: "code out app"},
-]
-return (
-    <div>
-        <h1>Todo List</h1>
-        <ul>
-            {todoList.map(todo => <li key={todo.id}>{todo.title}</li>)}
-        </ul>
-    </div>
-  );
-
+    return (
+        <div>
+            <h1 style={componentStyle.heading}>Todo List</h1>
+            <TodoForm />
+            <TodoList />
+        </div>
+    );
 }
 
-export default App
+export default App;
