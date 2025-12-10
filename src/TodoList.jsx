@@ -1,3 +1,4 @@
+import TodoListItem from "../TodoListItem";
 
 const componentStyle = {
     list: {
@@ -19,25 +20,15 @@ const componentStyle = {
     },
 };
 
-function TodoList() {
-    const todoList = [
-        { id: 1, title: "review resources" },
-        { id: 2, title: "take notes" },
-        { id: 3, title: "code out app" },
-    ];
+function TodoList({ todoList }) {
 
     return (
         <ul style={componentStyle.list}>
             {todoList.map((todo, index) => (
-                <li
-                    key={todo.id}
-                    style={{
-                        ...componentStyle.listItem,
-                        ...(index === todoList.length - 1 ? componentStyle.lastItem : {}),
-                    }}
-                >
-                    {todo.title}
-                </li>
+                <TodoListItem todo={todo} style={{
+                    ...componentStyle.listItem,
+                    ...(index === todoList.length - 1 ? componentStyle.lastItem : {}),
+                }} />
             ))}
         </ul>
     );
