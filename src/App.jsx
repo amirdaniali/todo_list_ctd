@@ -25,14 +25,25 @@ function App() {
         setTodoList([{
             title: todoTitle,
             id: Date.now(),
+            isCompleted: false,
         }, ...todoList])
+    };
+
+    const completeTodo = (id) => {
+        let newList = [];
+        todoList.forEach((todo) => {
+            newList.push(todo.id === id ? { ...todo, isCompleted: true } : todo)
+        })
+        setTodoList(
+            newList
+        );
     };
 
     return (
         <div>
             <h1 style={componentStyle.heading}>Todo List</h1>
             <TodoForm onAddTodo={addTodo} />
-            <TodoList todoList={todoList} />
+            <TodoList onCompleteTodo={completeTodo} todoList={todoList} />
         </div>
     );
 }

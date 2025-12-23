@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 const componentStyle = {
     form: {
         display: "flex",
@@ -24,7 +24,7 @@ const componentStyle = {
         borderRadius: "4px",
         outline: "none",
     },
-    button: {
+    enabledButton: {
         padding: "10px",
         border: "none",
         borderRadius: "4px",
@@ -33,7 +33,18 @@ const componentStyle = {
         fontFamily: "Arial, sans-serif",
         fontWeight: "bold",
         cursor: "pointer",
-        opacity: 0.6,
+        // opacity: 0.6,
+    },
+    disabledButton: {
+        padding: "10px",
+        border: "none",
+        borderRadius: "4px",
+        backgroundColor: "#007bff",
+        color: "#fff",
+        fontFamily: "Arial, sans-serif",
+        fontWeight: "bold",
+        cursor: "pointer",
+        opacity: 0.3,
     },
 };
 
@@ -41,14 +52,14 @@ function TodoForm({ onAddTodo }) {
 
     let inputRef = useRef()
 
+    let [workingTodoTitle, setWorkingTodoTitle] = useState("");
+
     const handleAddTodo = (event) => {
         event.preventDefault();
-        let title = inputRef.current.value.trim();
 
-        if (title && title != null && title != "") {
-            onAddTodo(title);
-            inputRef.current.value = "";
-            event.target.reset();
+        if (workingTodoTitle && workingTodoTitle != null && workingTodoTitle != "") {
+            onAddTodo(workingTodoTitle.trim());
+            setWorkingTodoTitle("");
             inputRef.current.focus();
         }
     }
@@ -56,8 +67,22 @@ function TodoForm({ onAddTodo }) {
     return (
         <form style={componentStyle.form}>
             <label htmlFor="todoTitle" style={componentStyle.label}>Todo</label>
-            <input ref={inputRef} type="text" id="todoTitle" placeholder={"Todo text"} required style={componentStyle.input} />
-            <button type="submit" onClick={handleAddTodo} style={componentStyle.button} >
+            <input
+                ref={inputRef}
+                required
+                type="text"
+                id="todoTitle"
+                placeholder={"Todo text"}
+                value={workingTodoTitle}
+                onChange={(event) => setWorkingTodoTitle(event.target.value)}
+                style={componentStyle.input} />
+            <button
+                style={!workingTodoTitle.trim() ?
+                    componentStyle.disabledButton : componentStyle.enabledButton}
+                disabled={!workingTodoTitle.trim()}
+                type="submit"
+                onClick={handleAddTodo}
+            >
                 Add Todo
             </button>
         </form>
