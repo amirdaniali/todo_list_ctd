@@ -21,11 +21,12 @@ const componentStyle = {
 };
 
 function TodoList({ todoList }) {
+    console.log(todoList);
 
     return (
         <ul style={componentStyle.list}>
             {todoList.map((todo, index) => (
-                <TodoListItem todo={todo} style={{
+                <TodoListItem key={todo.id} todo={todo} style={{
                     ...componentStyle.listItem,
                     ...(index === todoList.length - 1 ? componentStyle.lastItem : {}),
                 }} />

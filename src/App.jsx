@@ -15,20 +15,23 @@ const componentStyle = {
     },
 };
 
-const todos = [
-    { id: 1, title: "review resources" },
-    { id: 2, title: "take notes" },
-    { id: 3, title: "code out app" },
-];
+
 
 function App() {
 
-    let [todoList, setTodoList] = useState(todos);
+    let [todoList, setTodoList] = useState([]);
+
+    const addTodo = (todoTitle) => {
+        setTodoList([{
+            title: todoTitle,
+            id: Date.now(),
+        }, ...todoList])
+    };
 
     return (
         <div>
             <h1 style={componentStyle.heading}>Todo List</h1>
-            <TodoForm />
+            <TodoForm onAddTodo={addTodo} />
             <TodoList todoList={todoList} />
         </div>
     );

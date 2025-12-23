@@ -1,4 +1,4 @@
-
+import { useRef } from "react";
 const componentStyle = {
     form: {
         display: "flex",
@@ -37,12 +37,27 @@ const componentStyle = {
     },
 };
 
-function TodoForm() {
+function TodoForm({ onAddTodo }) {
+
+    let inputRef = useRef()
+
+    const handleAddTodo = (event) => {
+        event.preventDefault();
+        let title = inputRef.current.value.trim();
+
+        if (title && title != null && title != "") {
+            onAddTodo(title);
+            inputRef.current.value = "";
+            event.target.reset();
+            inputRef.current.focus();
+        }
+    }
+
     return (
         <form style={componentStyle.form}>
             <label htmlFor="todoTitle" style={componentStyle.label}>Todo</label>
-            <input type="text" id="todoTitle" placeholder={"Todo text"} style={componentStyle.input} />
-            <button type="submit" disabled style={componentStyle.button}>
+            <input ref={inputRef} type="text" id="todoTitle" placeholder={"Todo text"} required style={componentStyle.input} />
+            <button type="submit" onClick={handleAddTodo} style={componentStyle.button} >
                 Add Todo
             </button>
         </form>
