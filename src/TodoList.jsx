@@ -18,20 +18,38 @@ const componentStyle = {
     lastItem: {
         borderBottom: "none",
     },
+    empty: {
+        padding: "10px",
+        margin: "20px auto",
+        borderRadius: "8px",
+        backgroundColor: "#f9f9f9",
+        border: "1px solid #ccc",
+        maxWidth: "600px",
+        fontFamily: "Arial, sans-serif",
+        textAlign: "center",
+    },
 };
 
-function TodoList({ todoList }) {
-    console.log(todoList);
+function TodoList({ todoList, onCompleteTodo }) {
 
-    return (
-        <ul style={componentStyle.list}>
-            {todoList.map((todo, index) => (
-                <TodoListItem key={todo.id} todo={todo} style={{
+    let filteredTodoList = todoList.filter((todo) => {
+        return !todo.isCompleted
+    });
+
+    return (<>
+
+        {filteredTodoList.length == 0 ? < p style={{
+            ...componentStyle.empty
+        }} > No Todos...</p > : <ul style={componentStyle.list}>
+            {filteredTodoList.map((todo, index) => (
+                <TodoListItem onCompleteTodo={onCompleteTodo} key={todo.id} todo={todo} style={{
                     ...componentStyle.listItem,
-                    ...(index === todoList.length - 1 ? componentStyle.lastItem : {}),
+                    ...(index === filteredTodoList.length - 1 ? componentStyle.lastItem : {}),
                 }} />
             ))}
         </ul>
+        }
+    </>
     );
 }
 
