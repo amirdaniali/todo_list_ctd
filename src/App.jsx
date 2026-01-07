@@ -39,11 +39,24 @@ function App() {
         );
     };
 
+    const updateTodo = (editedTodo) => {
+        let updatedTodos = [];
+        todoList.forEach((todo) => {
+            if (todo.id === editedTodo.id) {
+                updatedTodos.push(editedTodo);
+            }
+            else {
+                updatedTodos.push(todo)
+            }
+        })
+        setTodoList(updatedTodos);
+    }
+
     return (
         <div>
             <h1 style={componentStyle.heading}>Todo List</h1>
             <TodoForm onAddTodo={addTodo} />
-            <TodoList onCompleteTodo={completeTodo} todoList={todoList} />
+            <TodoList onCompleteTodo={completeTodo} onUpdateTodo={updateTodo} todoList={todoList} />
         </div>
     );
 }

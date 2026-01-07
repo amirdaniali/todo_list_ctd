@@ -30,7 +30,7 @@ const componentStyle = {
     },
 };
 
-function TodoList({ todoList, onCompleteTodo }) {
+function TodoList({ todoList, onCompleteTodo, onUpdateTodo}) {
 
     let filteredTodoList = todoList.filter((todo) => {
         return !todo.isCompleted
@@ -42,7 +42,7 @@ function TodoList({ todoList, onCompleteTodo }) {
             ...componentStyle.empty
         }} > No Todos...</p > : <ul style={componentStyle.list}>
             {filteredTodoList.map((todo, index) => (
-                <TodoListItem onCompleteTodo={onCompleteTodo} key={todo.id} todo={todo} style={{
+                <TodoListItem onCompleteTodo={onCompleteTodo} onUpdateTodo={onUpdateTodo} key={todo.id} todo={todo} style={{
                     ...componentStyle.listItem,
                     ...(index === filteredTodoList.length - 1 ? componentStyle.lastItem : {}),
                 }} />
