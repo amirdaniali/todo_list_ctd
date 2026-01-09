@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import TextInputWithLabel from "../shared/TextInputWithLabel.jsx";
+import {isValidTodoTitle} from "../utils/todoValidation.js";
 const componentStyle = {
     form: {
         display: "flex",
@@ -11,18 +13,6 @@ const componentStyle = {
         borderRadius: "8px",
         backgroundColor: "#f9f9f9",
         fontFamily: "Arial, sans-serif",
-    },
-    label: {
-        // display: "None",
-        fontWeight: "bold",
-        marginBottom: "5px",
-        textAlign: "center",
-    },
-    input: {
-        padding: "8px",
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        outline: "none",
     },
     enabledButton: {
         padding: "10px",
@@ -50,14 +40,14 @@ const componentStyle = {
 
 function TodoForm({ onAddTodo }) {
 
-    let inputRef = useRef()
+    let inputRef = useRef("")
 
     let [workingTodoTitle, setWorkingTodoTitle] = useState("");
 
     const handleAddTodo = (event) => {
         event.preventDefault();
 
-        if (workingTodoTitle && workingTodoTitle != null && workingTodoTitle != "") {
+        if (workingTodoTitle && workingTodoTitle !== "") {
             onAddTodo(workingTodoTitle.trim());
             setWorkingTodoTitle("");
             inputRef.current.focus();
@@ -66,20 +56,11 @@ function TodoForm({ onAddTodo }) {
 
     return (
         <form style={componentStyle.form}>
-            <label htmlFor="todoTitle" style={componentStyle.label}>Todo</label>
-            <input
-                ref={inputRef}
-                required
-                type="text"
-                id="todoTitle"
-                placeholder={"Todo text"}
-                value={workingTodoTitle}
-                onChange={(event) => setWorkingTodoTitle(event.target.value)}
-                style={componentStyle.input} />
+            <TextInputWithLabel labelText={"todo"} value={workingTodoTitle} elementId={"todoTitle"} ref={inputRef}  onChange={(event) => setWorkingTodoTitle(event.target.value)} />
             <button
                 style={!workingTodoTitle.trim() ?
                     componentStyle.disabledButton : componentStyle.enabledButton}
-                disabled={!workingTodoTitle.trim()}
+                disabled={!isValidTodoTitle(workingTodoTitle)}
                 type="submit"
                 onClick={handleAddTodo}
             >
