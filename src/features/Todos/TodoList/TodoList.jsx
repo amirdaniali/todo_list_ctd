@@ -1,4 +1,4 @@
-import TodoListItem from "./TodoListItem.jsx";
+import TodoListItem from "./TodoListItem";
 
 const componentStyle = {
     list: {
@@ -30,7 +30,7 @@ const componentStyle = {
     },
 };
 
-function TodoList({ todoList, onCompleteTodo, onUpdateTodo}) {
+function TodoList({ todoList, onCompleteTodo, onUpdateTodo }) {
 
     let filteredTodoList = todoList.filter((todo) => {
         return !todo.isCompleted
