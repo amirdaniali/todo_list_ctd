@@ -1,7 +1,8 @@
-import './App.css'
-import TodoList from './features/TodoList/TodoList.jsx';
-import TodoForm from './features/TodoForm.jsx';
 import { useState } from 'react';
+import './App.css'
+import Logon from './features/Todos/Logon.jsx';
+import TodosPage from './features/Todos/TodosPage.jsx';
+import Header from './shared/Header.jsx';
 
 const componentStyle = {
     heading: {
@@ -19,45 +20,15 @@ const componentStyle = {
 
 function App() {
 
-    let [todoList, setTodoList] = useState([]);
+    let [email, setEmail] = useState("");
+    let [token, setToken] = useState("");
 
-    const addTodo = (todoTitle) => {
-        setTodoList([{
-            title: todoTitle,
-            id: Date.now(),
-            isCompleted: false,
-        }, ...todoList])
-    };
-
-    const completeTodo = (id) => {
-        let newList = [];
-        todoList.forEach((todo) => {
-            newList.push(todo.id === id ? { ...todo, isCompleted: true } : todo)
-        })
-        setTodoList(
-            newList
-        );
-    };
-
-    const updateTodo = (editedTodo) => {
-        let updatedTodos = [];
-        todoList.forEach((todo) => {
-            if (todo.id === editedTodo.id) {
-                updatedTodos.push(editedTodo);
-            }
-            else {
-                updatedTodos.push(todo)
-            }
-        })
-        setTodoList(updatedTodos);
-    }
 
     return (
-        <div>
-            <h1 style={componentStyle.heading}>Todo List</h1>
-            <TodoForm onAddTodo={addTodo} />
-            <TodoList onCompleteTodo={completeTodo} onUpdateTodo={updateTodo} todoList={todoList} />
-        </div>
+        <>
+            <Header token={token} onSetToken={setToken} onSetEmail={setEmail} />
+            {token ? <TodosPage token={token} /> : <Logon onSetEmail={setEmail} onSetToken={setToken} />}
+        </>
     );
 }
 
