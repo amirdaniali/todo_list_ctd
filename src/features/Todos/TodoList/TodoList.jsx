@@ -1,4 +1,5 @@
 import TodoListItem from "./TodoListItem";
+import {useMemo} from "react";
 
 const componentStyle = {
     list: {
@@ -30,26 +31,33 @@ const componentStyle = {
     },
 };
 
-function TodoList({ todoList, onCompleteTodo, onUpdateTodo }) {
+function TodoList({todoList, onCompleteTodo, onUpdateTodo, dataVersion}) {
 
-    let filteredTodoList = todoList.filter((todo) => {
-        return !todo.isCompleted
-    });
+    let filteredTodoList = useMemo(() => {
+        let newList = todoList.filter((todo) => {
+            return !todo.isCompleted
+        });
+        return {
+            version: dataVersion,
+            todos: newList,
+        }
+    }, [dataVersion, todoList]);
 
     return (<>
 
-        {filteredTodoList.length == 0 ? < p style={{
-            ...componentStyle.empty
-        }} > No Todos...</p > : <ul style={componentStyle.list}>
-            {filteredTodoList.map((todo, index) => (
-                <TodoListItem onCompleteTodo={onCompleteTodo} onUpdateTodo={onUpdateTodo} key={todo.id} todo={todo} style={{
-                    ...componentStyle.listItem,
-                    ...(index === filteredTodoList.length - 1 ? componentStyle.lastItem : {}),
-                }} />
-            ))}
-        </ul>
-        }
-    </>
+            {filteredTodoList.todos.length == 0 ? < p style={{
+                ...componentStyle.empty
+            }}> No Todos...</p> : <ul style={componentStyle.list}>
+                {filteredTodoList.todos.map((todo, index) => (
+                    <TodoListItem onCompleteTodo={onCompleteTodo} onUpdateTodo={onUpdateTodo} key={todo.id} todo={todo}
+                                  style={{
+                                      ...componentStyle.listItem,
+                                      ...(index === filteredTodoList.todos.length - 1 ? componentStyle.lastItem : {}),
+                                  }}/>
+                ))}
+            </ul>
+            }
+        </>
     );
 }
 
