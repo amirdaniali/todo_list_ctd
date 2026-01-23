@@ -1,6 +1,6 @@
-import { useState } from "react";
+import {useState} from "react";
 
-export default function Logon({ onSetEmail, onSetToken }) {
+export default function Logon({onSetEmail, onSetToken}) {
     let [email, setEmail] = useState("");
     let [password, setPassword] = useState("");
     let [authError, setAuthError] = useState("");
@@ -10,7 +10,6 @@ export default function Logon({ onSetEmail, onSetToken }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        console.log("handle submit called with", email, password);
         if (isLoggingOn) {
             return
         }
@@ -18,15 +17,14 @@ export default function Logon({ onSetEmail, onSetToken }) {
         try {
             const response = await fetch(`${baseUrl}/user/logon`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 credentials: 'include',
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({email, password})
             });
             const data = await response.json();
             if (response.status === 200 && data.name && data.csrfToken) {
                 onSetEmail(data.name);
                 onSetToken(data.csrfToken);
-                console.log("Loging attemp succesful.", data.name, data.csrfToken)
                 setAuthError("");
             } else {
                 setAuthError(`Authentication failed: ${data?.message}`);
@@ -41,7 +39,7 @@ export default function Logon({ onSetEmail, onSetToken }) {
     return (
         <>
             <b>{authError ? `Error: ${authError}` : null}</b>
-            < form >
+            < form>
                 <label htmlFor="email">Email</label>
                 <input id="email" type="email" onChange={(event) => setEmail(event.target.value)}></input>
 
@@ -52,7 +50,7 @@ export default function Logon({ onSetEmail, onSetToken }) {
                     {isLoggingOn ? "Logging in..." : "Log On"}
                 </button>
 
-            </form >
+            </form>
         </>
     )
 };

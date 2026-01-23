@@ -1,6 +1,7 @@
-import { useRef, useState } from "react";
+import {useRef, useState} from "react";
 import TextInputWithLabel from "../../shared/TextInputWithLabel.jsx";
-import { isValidTodoTitle } from "../../utils/todoValidation.js";
+import {isValidTodoTitle} from "../../utils/todoValidation.js";
+
 const componentStyle = {
     form: {
         display: "flex",
@@ -38,7 +39,7 @@ const componentStyle = {
     },
 };
 
-function TodoForm({ onAddTodo }) {
+function TodoForm({onAddTodo}) {
 
     let inputRef = useRef("")
 
@@ -48,7 +49,7 @@ function TodoForm({ onAddTodo }) {
         event.preventDefault();
 
         if (workingTodoTitle && workingTodoTitle !== "") {
-            onAddTodo(workingTodoTitle.trim());
+            onAddTodo(workingTodoTitle);
             setWorkingTodoTitle("");
             inputRef.current.focus();
         }
@@ -56,7 +57,8 @@ function TodoForm({ onAddTodo }) {
 
     return (
         <form style={componentStyle.form}>
-            <TextInputWithLabel labelText={"todo"} value={workingTodoTitle} elementId={"todoTitle"} ref={inputRef} onChange={(event) => setWorkingTodoTitle(event.target.value)} />
+            <TextInputWithLabel labelText={"todo"} value={workingTodoTitle} elementId={"todoTitle"} ref={inputRef}
+                                onChange={(event) => setWorkingTodoTitle(event.target.value)}/>
             <button
                 style={!workingTodoTitle.trim() ?
                     componentStyle.disabledButton : componentStyle.enabledButton}
