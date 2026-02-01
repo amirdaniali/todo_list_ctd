@@ -1,3 +1,4 @@
+import {useAuth} from "../contexts/AuthContext.jsx";
 
 const componentStyle = {
     heading: {
@@ -12,6 +13,7 @@ const componentStyle = {
 };
 
 export default function Header() {
+    let {token, isAuthenticated} = useAuth();
     return (
         <h1 style={componentStyle.heading}>Todo List</h1>
     )

@@ -6,10 +6,11 @@ import SortBy from '../../shared/sortBy.jsx';
 import useDebounce from '../../utils/useDebounce.js';
 import FilterInput from '../../shared/FilterInput.jsx';
 import {todoReducer, initialTodoState, TODO_ACTIONS} from '../../reducers/todoReducer.js';
+import {useAuth} from "../../contexts/AuthContext.jsx";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-function TodosPage({token}) {
+function TodosPage() {
     const [state, dispatch] = useReducer(todoReducer, initialTodoState);
     const {
         todoList,
@@ -22,6 +23,8 @@ function TodosPage({token}) {
         filterTerm,
         dataVersion
     } = state;
+
+    let {token} = useAuth();
 
     const debouncedFilterTerm = useDebounce(filterTerm, 300);
 

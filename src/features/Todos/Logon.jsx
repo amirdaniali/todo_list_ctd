@@ -1,41 +1,29 @@
 import {useState} from "react";
+import {useAuth} from "../../contexts/AuthContext.jsx";
 
-export default function Logon({onSetEmail, onSetToken}) {
+export default function Logon() {
     let [email, setEmail] = useState("");
     let [password, setPassword] = useState("");
     let [authError, setAuthError] = useState("");
     let [isLoggingOn, setIsLoggingOn] = useState(false);
 
-    const baseUrl = import.meta.env.VITE_BASE_URL;
+    let {login} = useAuth();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         if (isLoggingOn) {
-            return
+            return;
         }
         setIsLoggingOn(true);
-        try {
-            const response = await fetch(`${baseUrl}/user/logon`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                credentials: 'include',
-                body: JSON.stringify({email, password})
-            });
-            const data = await response.json();
-            if (response.status === 200 && data.name && data.csrfToken) {
-                onSetEmail(data.name);
-                onSetToken(data.csrfToken);
-                setAuthError("");
-            } else {
-                setAuthError(`Authentication failed: ${data?.message}`);
-            }
-        } catch (error) {
-            setAuthError(`Error: ${error.name} | ${error.message}`);
-        } finally {
-            setIsLoggingOn(false);
+        let result = await login(email, password);
+        setIsLoggingOn(false);
+        if (result.success) {
+            setAuthError("")
+        } else {
+            setAuthError(result.error);
         }
-    };
 
+    }
     return (
         <>
             <b>{authError ? `Error: ${authError}` : null}</b>
