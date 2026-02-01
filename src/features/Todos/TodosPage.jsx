@@ -1,260 +1,337 @@
-import TodoList from './TodoList/TodoList.jsx'
+// TodosPage.jsx
+import React, {useEffect, useReducer} from 'react';
+import TodoList from './TodoList/TodoList.jsx';
 import TodoForm from './TodoForm';
-import {useCallback, useEffect, useState} from 'react';
-import SortBy from "../../shared/sortBy.jsx";
-import useDebounce from "../../utils/useDebounce.js";
-import FilterInput from "../../shared/FilterInput.jsx";
+import SortBy from '../../shared/sortBy.jsx';
+import useDebounce from '../../utils/useDebounce.js';
+import FilterInput from '../../shared/FilterInput.jsx';
+import {todoReducer, initialTodoState, TODO_ACTIONS} from '../../reducers/todoReducer.js';
 
-const baseUrl = import.meta.env.VITE_BASE_URL
-
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 function TodosPage({token}) {
+    const [state, dispatch] = useReducer(todoReducer, initialTodoState);
+    const {
+        todoList,
+        error,
+        filterError,
+        isTodoListLoading,
+        fetchBlocked,
+        sortBy,
+        sortDirection,
+        filterTerm,
+        dataVersion
+    } = state;
 
-    let [todoList, setTodoList] = useState([]);
-    let [error, setError] = useState("");
-    let [isTodoListLoading, setIsTodoListLoading] = useState(false);
-    let [sortBy, setSortBy] = useState('creationDate');
-    let [sortDirection, setSortDirection] = useState('desc');
-    const [filterTerm, setFilterTerm] = useState('');
     const debouncedFilterTerm = useDebounce(filterTerm, 300);
-    let [dataVersion, setDataVersion] = useState(0);
-    let [filterError, setFilterError] = useState("");
 
-    let invalidateCache = useCallback(() => {
-        setDataVersion(prev => prev + 1);
-    }, [])
-
-    async function fetchTodos(token) {
-        if (isTodoListLoading) {
-            return
-        }
-        setIsTodoListLoading(true);
-        try {
-            const paramsObject = {
-                sortBy,
-                sortDirection,
-            };
-            if (debouncedFilterTerm) {
-                paramsObject.find = debouncedFilterTerm;
-            }
-            const params = new URLSearchParams(paramsObject);
-            const response = await fetch(`${baseUrl}/tasks?${params}`, {
-                method: 'GET',
-                headers: {'Content-Type': 'application/json', "X-CSRF-TOKEN": token},
-                credentials: 'include',
-            });
-            const data = await response.json();
-            if (response.status === 200) {
-                setTodoList(data);
-                setFilterError("");
-                setError("");
-            } else if (response.status === 401) {
-                setError(`Unauthorized Error: ${data?.message}`);
-
-            } else {
-                setError(`Error: ${data?.message}`);
-            }
-        } catch (error) {
-            if (debouncedFilterTerm || sortBy !== 'creationDate' || sortDirection !== 'desc') {
-                setFilterError(`Error filtering/sorting todos: ${error.message}`);
-            } else {
-                setError(`Error fetching todos: ${error.message}`);
-            }
-        } finally {
-            setIsTodoListLoading(false)
-        }
-
-    }
+    const invalidateCache = () => dispatch({type: TODO_ACTIONS.INCREMENT_DATA_VERSION});
 
 
     useEffect(() => {
-        if (token) {
-            fetchTodos(token)
+        if (!token) return;
+
+        if (state.fetchBlocked) {
+            return;
         }
-    }, [token, sortBy, sortDirection, debouncedFilterTerm])
+
+        if (isTodoListLoading) return;
+
+        (async () => {
+            dispatch({type: TODO_ACTIONS.FETCH_START});
+
+            try {
+                const paramsObject = {
+                    sortBy,
+                    sortDirection,
+                };
+                if (debouncedFilterTerm) {
+                    paramsObject.find = debouncedFilterTerm;
+                }
+                const params = new URLSearchParams(paramsObject);
+                const response = await fetch(`${baseUrl}/tasks?${params}`, {
+                    method: 'GET',
+                    headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': token},
+                    credentials: 'include',
+                });
+
+                if (response.status === 429) {
+                    const data = await response.text().catch(() => null);
+                    dispatch({
+                        type: TODO_ACTIONS.FETCH_ERROR,
+                        payload: {
+                            error: `Server rate-limited requests (429). Try again later.`,
+                            isFilterOrSort: false,
+                            status: 429,
+                            blockFetch: true,
+                        },
+                    });
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (response.status === 200) {
+                    dispatch({type: TODO_ACTIONS.FETCH_SUCCESS, payload: {todos: data}});
+                } else if (response.status === 401) {
+                    dispatch({
+                        type: TODO_ACTIONS.FETCH_ERROR,
+                        payload: {error: `Unauthorized Error: ${data?.message}`, isFilterOrSort: false, status: 401},
+                    });
+                } else {
+                    dispatch({
+                        type: TODO_ACTIONS.FETCH_ERROR,
+                        payload: {error: `Error: ${data?.message}`, isFilterOrSort: false, status: response.status},
+                    });
+                }
+            } catch (err) {
+                // Network/CORS errors show up as thrown exceptions in fetch
+                const isFilterOrSort = Boolean(debouncedFilterTerm || sortBy !== 'creationDate' || sortDirection !== 'desc');
+                const message = isFilterOrSort
+                    ? `Error filtering/sorting todos: ${err.message}`
+                    : `Error fetching todos: ${err.message}`;
+
+                // Block automatic refetches on network/CORS errors to avoid tight loops
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {error: message, isFilterOrSort, status: null, blockFetch: true},
+                });
+            }
+        })();
+        // match original dependencies so fetch runs exactly when the original did
+        // do NOT include isTodoListLoading here (it caused a loop)
+    }, [token, sortBy, sortDirection, debouncedFilterTerm, fetchBlocked, dataVersion]);
+
+
+    // inside TodosPage.jsx (replace the existing helpers)
 
     const postTodo = async (title) => {
-
         try {
             const response = await fetch(`${baseUrl}/tasks`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json', "X-CSRF-TOKEN": token},
+                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': token},
                 credentials: 'include',
-                body: JSON.stringify({
-                    title: title,
-                    isCompleted: false,
-                }),
+                body: JSON.stringify({title, isCompleted: false}),
             });
-            const data = await response.json();
-            if (response.status === 200) {
 
-                setError("");
-
-                return data
-            } else if (response.status === 401) {
-                setError(`Unauthorized Error: ${data?.message}`);
-
-            } else {
-                setError(`Error: ${data?.message}`);
+            if (response.ok) {
+                const data = await response.json().catch(() => null);
+                dispatch({type: TODO_ACTIONS.CLEAR_ERROR});
+                return data;
             }
-        } catch (error) {
-            setError(`Error: ${error.name} | ${error.message}`);
 
+            const data = await response.json().catch(() => null);
+            if (response.status === 401) {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {error: `Unauthorized Error: ${data?.message}`, isFilterOrSort: false, status: 401},
+                });
+            } else {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {
+                        error: `Error: ${data?.message ?? response.statusText}`,
+                        isFilterOrSort: false,
+                        status: response.status
+                    },
+                });
+            }
+        } catch (err) {
+            dispatch({
+                type: TODO_ACTIONS.FETCH_ERROR,
+                payload: {
+                    error: `Error: ${err.name} | ${err.message}`,
+                    isFilterOrSort: false,
+                    status: null,
+                    blockFetch: true
+                },
+            });
         }
-    }
+    };
 
     const finishTodo = async (id) => {
-
         try {
             const response = await fetch(`${baseUrl}/tasks/${id}`, {
                 method: 'PATCH',
-                headers: {'Content-Type': 'application/json', "X-CSRF-TOKEN": token},
+                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': token},
                 credentials: 'include',
-                body: JSON.stringify({
-                    // i didn't implement createdTime patching because it didn't seem relevant?
-                    isCompleted: true,
-                }),
+                body: JSON.stringify({isCompleted: true}),
             });
-            const data = await response.json();
-            if (response.status === 200) {
 
-                setError("");
-                return "success"
-            } else if (response.status === 401) {
-                setError(`Unauthorized Error: ${data?.message}`);
-
-            } else {
-                setError(`Error: ${data?.message}`);
+            if (response.ok) {
+                const data = await response.json().catch(() => null);
+                dispatch({type: TODO_ACTIONS.CLEAR_ERROR});
+                return 'success';
             }
-        } catch (error) {
-            setError(`Error: ${error.name} | ${error.message}`);
 
-        } finally {
+            const data = await response.json().catch(() => null);
+            if (response.status === 401) {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {error: `Unauthorized Error: ${data?.message}`, isFilterOrSort: false, status: 401},
+                });
+            } else {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {
+                        error: `Error: ${data?.message ?? response.statusText}`,
+                        isFilterOrSort: false,
+                        status: response.status
+                    },
+                });
+            }
+        } catch (err) {
+            dispatch({
+                type: TODO_ACTIONS.FETCH_ERROR,
+                payload: {
+                    error: `Error: ${err.name} | ${err.message}`,
+                    isFilterOrSort: false,
+                    status: null,
+                    blockFetch: true
+                },
+            });
         }
-    }
+    };
 
     const alterTodo = async (id, title, createdTime) => {
-
         try {
             const response = await fetch(`${baseUrl}/tasks/${id}`, {
                 method: 'PATCH',
-                headers: {'Content-Type': 'application/json', "X-CSRF-TOKEN": token},
+                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': token},
                 credentials: 'include',
-                body: JSON.stringify({
-                    title: title,
-                    createdTime: createdTime,
-                    // i didn't implement createdTime patching because it didn't seem relevant?
-                    isCompleted: false, // why pass isCompleted when users can only edit what they see and they can only see non completed?
-                }),
+                body: JSON.stringify({title, createdTime, isCompleted: false}),
             });
-            const data = await response.json();
-            if (response.status === 200) {
 
-                setError("");
-                return "success"
-            } else if (response.status === 401) {
-                setError(`Unauthorized Error: ${data?.message}`);
-
-            } else {
-                setError(`Error: ${data?.message}`);
+            if (response.ok) {
+                const data = await response.json().catch(() => null);
+                dispatch({type: TODO_ACTIONS.CLEAR_ERROR});
+                return 'success';
             }
-        } catch (error) {
-            setError(`Error: ${error.name} | ${error.message}`);
 
-        } finally {
+            const data = await response.json().catch(() => null);
+            if (response.status === 401) {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {error: `Unauthorized Error: ${data?.message}`, isFilterOrSort: false, status: 401},
+                });
+            } else {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {
+                        error: `Error: ${data?.message ?? response.statusText}`,
+                        isFilterOrSort: false,
+                        status: response.status
+                    },
+                });
+            }
+        } catch (err) {
+            dispatch({
+                type: TODO_ACTIONS.FETCH_ERROR,
+                payload: {
+                    error: `Error: ${err.name} | ${err.message}`,
+                    isFilterOrSort: false,
+                    status: null,
+                    blockFetch: true
+                },
+            });
         }
-    }
+    };
+
 
     const addTodo = async (todoTitle) => {
-        let lastTodos = todoList;
-        setTodoList([{
-            title: todoTitle,
-            id: Date.now(),
-            isCompleted: false,
-        }, ...todoList])
-        let newTodo = await postTodo(todoTitle);
-        if (newTodo) {
-            setTodoList([newTodo, ...lastTodos]);
+        const previousTodos = todoList;
+        const tempTodo = {title: todoTitle, id: Date.now(), isCompleted: false};
+
+        dispatch({type: TODO_ACTIONS.ADD_TODO_OPTIMISTIC, payload: {todo: tempTodo}});
+
+        const serverTodo = await postTodo(todoTitle);
+        if (serverTodo) {
+            dispatch({type: TODO_ACTIONS.ADD_TODO_SUCCESS, payload: {tempId: tempTodo.id, serverTodo}});
             invalidateCache();
         } else {
-            setTodoList(lastTodos);
-            setError(`There was an error syncing the todo with the server.`);
+            dispatch({
+                type: TODO_ACTIONS.ADD_TODO_ROLLBACK,
+                payload: {previousTodos, error: 'There was an error syncing the todo with the server.'},
+            });
         }
     };
 
     const completeTodo = async (id) => {
-        let newList = [];
-        let oldList = todoList;
+        const previousTodos = todoList;
+        dispatch({type: TODO_ACTIONS.COMPLETE_TODO_OPTIMISTIC, payload: {id}});
 
-        todoList.forEach((todo) => {
-            newList.push(todo.id === id ? {...todo, isCompleted: true} : todo);
-        })
-        setTodoList(
-            newList
-        );
-        let result = await finishTodo(id);
-        if (result !== "success") {
-            setTodoList(oldList);
-            setError(`There was an error syncing the todo with the server.`);
-            return
+        const result = await finishTodo(id);
+        if (result !== 'success') {
+            dispatch({
+                type: TODO_ACTIONS.COMPLETE_TODO_ROLLBACK,
+                payload: {previousTodos, error: 'There was an error syncing the todo with the server.'},
+            });
+            return;
         }
+        dispatch({type: TODO_ACTIONS.COMPLETE_TODO_SUCCESS});
         invalidateCache();
     };
 
     const updateTodo = async (editedTodo) => {
-        let updatedTodos = [];
-        let oldTodos = todoList;
-        todoList.forEach((todo) => {
-            if (todo.id === editedTodo.id) {
-                updatedTodos.push(editedTodo);
-            } else {
-                updatedTodos.push(todo);
-            }
-        })
-        setTodoList(updatedTodos);
+        const previousTodos = todoList;
+        dispatch({type: TODO_ACTIONS.UPDATE_TODO_OPTIMISTIC, payload: {id: editedTodo.id, updated: editedTodo}});
 
-        let result = await alterTodo(editedTodo.id, editedTodo.title, editedTodo.createdTime);
-        if (result !== "success") {
-            setTodoList(oldTodos);
-            setError(`There was an error syncing the todo with the server.`);
-            return
+        const result = await alterTodo(editedTodo.id, editedTodo.title, editedTodo.createdTime);
+        if (result !== 'success') {
+            dispatch({
+                type: TODO_ACTIONS.UPDATE_TODO_ROLLBACK,
+                payload: {previousTodos, error: 'There was an error syncing the todo with the server.'},
+            });
+            return;
         }
+        dispatch({type: TODO_ACTIONS.UPDATE_TODO_SUCCESS});
         invalidateCache();
-    }
-
-    const handleFilterChange = (newTerm) => {
-        setFilterTerm(newTerm);
     };
 
-    const filterErrorComponent = <div>
-        <p>{filterError}</p>
-        <button style={{display: filterError ? "initial" : "none"}} type="reset"
-                onClick={() => setFilterError("")}>Clear Filter
-            Error
-        </button>
-        <button type={"reset"} onClick={() => {
-            setFilterTerm("");
-            setSortBy('creationDate');
-            setSortDirection('desc');
-            setFilterError('');
-        }}>Reset Filters
-        </button>
+    const handleFilterChange = (newTerm) => {
+        dispatch({type: TODO_ACTIONS.SET_FILTER_TERM, payload: newTerm});
+    };
 
-    </div>
+    const filterErrorComponent = (
+        <div>
+            <p>{filterError}</p>
+            <button style={{display: filterError ? 'initial' : 'none'}} type="reset"
+                    onClick={() => dispatch({type: TODO_ACTIONS.CLEAR_FILTER_ERROR})}>
+                Clear Filter Error
+            </button>
+            <button
+                type="reset"
+                onClick={() => {
+                    dispatch({type: TODO_ACTIONS.RESET_FILTERS});
+                }}
+            >
+                Reset Filters
+            </button>
+        </div>
+    );
 
     return (
         <div>
-
             <p>{error ? `Error: ${error}` : null}</p>
-            <button style={{display: error ? "initial" : "none"}} type="reset" onClick={() => setError("")}>Clear
-                Error
+            <button style={{display: error ? 'initial' : 'none'}} type="reset"
+                    onClick={() => dispatch({type: TODO_ACTIONS.CLEAR_ERROR})}>
+                Clear Error
             </button>
             <p>{isTodoListLoading ? `Loading.. Please wait.` : null}</p>
-            <SortBy sortBy={sortBy} sortDirection={sortDirection} onSortByChange={setSortBy}
-                    onSortDirectionChange={setSortDirection}/>
+
+            <SortBy
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSortByChange={(val) => dispatch({type: TODO_ACTIONS.SET_SORT, payload: val})}
+                onSortDirectionChange={(val) => dispatch({type: TODO_ACTIONS.SET_SORT_DIRECTION, payload: val})}
+            />
+
             <TodoForm onAddTodo={addTodo}/>
+
             <FilterInput filterTerm={filterTerm} onFilterChange={handleFilterChange}/>
+
             {filterErrorComponent}
+
             <TodoList onCompleteTodo={completeTodo} onUpdateTodo={updateTodo} todoList={todoList}
                       dataVersion={dataVersion}/>
         </div>
