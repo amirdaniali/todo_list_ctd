@@ -13,8 +13,11 @@ const componentStyle = {
 };
 
 export default function Header() {
-    let {token, isAuthenticated} = useAuth();
-    return (
-        <h1 style={componentStyle.heading}>Todo List</h1>
+    let {token, isAuthenticated, logout} = useAuth();
+    return (<>
+            <h1 style={componentStyle.heading}>Todo List</h1>
+            {/*logoff functionality is not yet implemented*/}
+            {/*{isAuthenticated ? <buttnon onClick={logout}>Logout</buttnon> : null}*/}
+        </>
     )
 }

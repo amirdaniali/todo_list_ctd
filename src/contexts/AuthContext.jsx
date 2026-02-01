@@ -53,7 +53,7 @@ export function AuthProvider({children}) {
     };
 
 
-    const logout = async (userEmail, password) => {
+    const logout = async (userEmail = email, password) => {
         try {
             const options = {
                 method: 'POST',
