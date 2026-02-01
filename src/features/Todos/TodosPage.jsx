@@ -7,8 +7,10 @@ import useDebounce from '../../utils/useDebounce.js';
 import FilterInput from '../../shared/FilterInput.jsx';
 import {todoReducer, initialTodoState, TODO_ACTIONS} from '../../reducers/todoReducer.js';
 import {useAuth} from "../../contexts/AuthContext.jsx";
+import {componentStyle} from "./../../shared/Styles.jsx"
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
+
 
 function TodosPage() {
     const [state, dispatch] = useReducer(todoReducer, initialTodoState);
@@ -314,31 +316,58 @@ function TodosPage() {
     );
 
     return (
-        <div>
-            <p>{error ? `Error: ${error}` : null}</p>
-            <button style={{display: error ? 'initial' : 'none'}} type="reset"
-                    onClick={() => dispatch({type: TODO_ACTIONS.CLEAR_ERROR})}>
+        <div style={componentStyle.page}>
+
+            {error && <p style={componentStyle.error}>Error: {error}</p>}
+
+            <button
+                type="reset"
+                style={{
+                    ...componentStyle.button,
+                    ...componentStyle.buttonSecondary,
+                    display: error ? "inline-block" : "none"
+                }}
+                onClick={() => dispatch({type: TODO_ACTIONS.CLEAR_ERROR})}
+            >
                 Clear Error
             </button>
-            <p>{isTodoListLoading ? `Loading.. Please wait.` : null}</p>
 
-            <SortBy
-                sortBy={sortBy}
-                sortDirection={sortDirection}
-                onSortByChange={(val) => dispatch({type: TODO_ACTIONS.SET_SORT, payload: val})}
-                onSortDirectionChange={(val) => dispatch({type: TODO_ACTIONS.SET_SORT_DIRECTION, payload: val})}
-            />
+            {isTodoListLoading && (
+                <p style={componentStyle.loading}>Loading... Please wait.</p>
+            )}
 
-            <TodoForm onAddTodo={addTodo}/>
+            <div style={componentStyle.section}>
+                <SortBy
+                    sortBy={sortBy}
+                    sortDirection={sortDirection}
+                    onSortByChange={(val) =>
+                        dispatch({type: TODO_ACTIONS.SET_SORT, payload: val})
+                    }
+                    onSortDirectionChange={(val) =>
+                        dispatch({type: TODO_ACTIONS.SET_SORT_DIRECTION, payload: val})
+                    }
+                />
+            </div>
 
-            <FilterInput filterTerm={filterTerm} onFilterChange={handleFilterChange}/>
+            <div style={componentStyle.section}>
+                <TodoForm onAddTodo={addTodo}/>
+            </div>
+
+            <div style={componentStyle.section}>
+                <FilterInput filterTerm={filterTerm} onFilterChange={handleFilterChange}/>
+            </div>
 
             {filterErrorComponent}
 
-            <TodoList onCompleteTodo={completeTodo} onUpdateTodo={updateTodo} todoList={todoList}
-                      dataVersion={dataVersion}/>
+            <TodoList
+                onCompleteTodo={completeTodo}
+                onUpdateTodo={updateTodo}
+                todoList={todoList}
+                dataVersion={dataVersion}
+            />
         </div>
     );
+
 }
 
 export default TodosPage;
