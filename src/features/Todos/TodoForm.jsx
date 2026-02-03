@@ -6,62 +6,71 @@ const componentStyle = {
     form: {
         display: "flex",
         flexDirection: "column",
-        gap: "10px",
-        maxWidth: "300px",
+        gap: "14px",
+        maxWidth: "500px",
         margin: "20px auto",
-        padding: "15px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        backgroundColor: "#f9f9f9",
+        padding: "20px",
+        background: "#ffffff",
+        borderRadius: "12px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
         fontFamily: "Arial, sans-serif",
     },
-    enabledButton: {
-        padding: "10px",
+
+    button: {
+        padding: "12px",
         border: "none",
-        borderRadius: "4px",
+        borderRadius: "6px",
         backgroundColor: "#007bff",
         color: "#fff",
-        fontFamily: "Arial, sans-serif",
-        fontWeight: "bold",
         cursor: "pointer",
-        // opacity: 0.6,
+        fontSize: "15px",
+        transition: "background-color 0.2s",
     },
-    disabledButton: {
-        padding: "10px",
+
+    buttonDisabled: {
+        padding: "12px",
         border: "none",
-        borderRadius: "4px",
-        backgroundColor: "#007bff",
+        borderRadius: "6px",
+        backgroundColor: "#6c757d",
         color: "#fff",
-        fontFamily: "Arial, sans-serif",
-        fontWeight: "bold",
-        cursor: "pointer",
-        opacity: 0.3,
-    },
+        cursor: "not-allowed",
+        fontSize: "15px",
+        opacity: 0.6,
+    }
 };
 
 function TodoForm({onAddTodo}) {
 
-    let inputRef = useRef("")
+    let inputRef = useRef("");
 
     let [workingTodoTitle, setWorkingTodoTitle] = useState("");
 
     const handleAddTodo = (event) => {
         event.preventDefault();
 
-        if (workingTodoTitle && workingTodoTitle !== "") {
+        if (workingTodoTitle.trim()) {
             onAddTodo(workingTodoTitle);
             setWorkingTodoTitle("");
             inputRef.current.focus();
         }
-    }
+    };
 
     return (
         <form style={componentStyle.form}>
-            <TextInputWithLabel labelText={"todo"} value={workingTodoTitle} elementId={"todoTitle"} ref={inputRef}
-                                onChange={(event) => setWorkingTodoTitle(event.target.value)}/>
+            <TextInputWithLabel
+                labelText={"Todo Title"}
+                value={workingTodoTitle}
+                elementId={"todoTitle"}
+                ref={inputRef}
+                onChange={(event) => setWorkingTodoTitle(event.target.value)}
+            />
+
             <button
-                style={!workingTodoTitle.trim() ?
-                    componentStyle.disabledButton : componentStyle.enabledButton}
+                style={
+                    !isValidTodoTitle(workingTodoTitle)
+                        ? componentStyle.buttonDisabled
+                        : componentStyle.button
+                }
                 disabled={!isValidTodoTitle(workingTodoTitle)}
                 type="submit"
                 onClick={handleAddTodo}
