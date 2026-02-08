@@ -66,7 +66,6 @@ export default function LoginPage() {
     let [authError, setAuthError] = useState("");
     let [isLoggingOn, setIsLoggingOn] = useState(false);
 
-    // Get intended destination from location state, default to /todos
     const from = location.state?.from?.pathname || '/todos';
 
     // Redirect if already authenticated

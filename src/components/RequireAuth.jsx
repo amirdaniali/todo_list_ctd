@@ -1,4 +1,3 @@
-// RequireAuth.jsx
 import {useEffect, useState} from "react";
 import {useLocation, useNavigate} from "react-router";
 import {useAuth} from "../contexts/AuthContext.jsx";

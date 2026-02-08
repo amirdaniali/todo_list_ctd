@@ -1,11 +1,9 @@
 import {createContext, useContext, useState} from 'react';
 
-// Create the context
 const AuthContext = createContext();
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
-// Custom hook with error checking
 export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) {
