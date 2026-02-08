@@ -2,6 +2,8 @@
 
 A learning project built as part of the Code the Dream React curriculum.
 
+The project is publicly available [here](https://todo.amirdaniali.com).
+
 ## Project Overview
 
 This project is a fully interactive Todo List built with React.
