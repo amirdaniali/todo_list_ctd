@@ -96,6 +96,8 @@ export default function TodoListItem({
         </>
     );
 
+    // return either the editing form or the editable text input
+
     return (
         <li style={style}>
             <form>{isEditing ? editingInput : editableTextInput}</form>
