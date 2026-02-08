@@ -1,13 +1,14 @@
-// TodosPage.jsx
 import React, {useEffect, useReducer} from 'react';
-import TodoList from './TodoList/TodoList.jsx';
-import TodoForm from './TodoForm';
-import SortBy from '../../shared/sortBy.jsx';
-import useDebounce from '../../utils/useDebounce.js';
-import FilterInput from '../../shared/FilterInput.jsx';
-import {todoReducer, initialTodoState, TODO_ACTIONS} from '../../reducers/todoReducer.js';
-import {useAuth} from "../../contexts/AuthContext.jsx";
-import {componentStyle} from "./../../shared/Styles.jsx"
+import TodoList from '../features/Todos/TodoList/TodoList.jsx';
+import TodoForm from '../features/Todos/TodoForm.jsx';
+import SortBy from '../shared/sortBy.jsx';
+import useDebounce from '../utils/useDebounce.js';
+import FilterInput from '../shared/FilterInput.jsx';
+import {todoReducer, initialTodoState, TODO_ACTIONS} from '../reducers/todoReducer.js';
+import {useAuth} from "../contexts/AuthContext.jsx";
+import {componentStyle} from "../shared/Styles.jsx"
+import {useSearchParams} from "react-router";
+import StatusFilter from "../shared/StatusFilter.jsx";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -25,6 +26,8 @@ function TodosPage() {
         filterTerm,
         dataVersion
     } = state;
+    const [searchParams] = useSearchParams();
+    const statusFilter = searchParams.get('status') || 'all';
 
     let {token} = useAuth();
 
@@ -154,6 +157,75 @@ function TodosPage() {
         }
     };
 
+    const freeTodo = async (id) => {
+        try {
+            const response = await fetch(`${baseUrl}/tasks/${id}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': token},
+                credentials: 'include',
+                body: JSON.stringify({isCompleted: false}),
+            });
+
+            if (response.ok) {
+                await response.json().catch(() => null);
+                dispatch({type: TODO_ACTIONS.CLEAR_ERROR});
+                return 'success';
+            }
+
+            const data = await response.json().catch(() => null);
+            if (response.status === 401) {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {
+                        error: `Unauthorized Error: ${data?.message}`,
+                        isFilterOrSort: false,
+                        status: 401,
+                    },
+                });
+            } else {
+                dispatch({
+                    type: TODO_ACTIONS.FETCH_ERROR,
+                    payload: {
+                        error: `Error: ${data?.message ?? response.statusText}`,
+                        isFilterOrSort: false,
+                        status: response.status,
+                    },
+                });
+            }
+        } catch (err) {
+            dispatch({
+                type: TODO_ACTIONS.FETCH_ERROR,
+                payload: {
+                    error: `Error: ${err.name} | ${err.message}`,
+                    isFilterOrSort: false,
+                    status: null,
+                    blockFetch: true,
+                },
+            });
+        }
+    };
+
+    const reactivateTodo = async (id) => {
+        const previousTodos = todoList;
+        dispatch({type: TODO_ACTIONS.REOPEN_TODO_OPTIMISTIC, payload: {id}});
+
+        const result = await freeTodo(id);
+        if (result !== 'success') {
+            dispatch({
+                type: TODO_ACTIONS.REOPEN_TODO_ROLLBACK,
+                payload: {
+                    previousTodos,
+                    error: 'There was an error syncing the todo with the server.',
+                },
+            });
+            return;
+        }
+
+        dispatch({type: TODO_ACTIONS.REOPEN_TODO_SUCCESS});
+        invalidateCache();
+    };
+
+
     const finishTodo = async (id) => {
         try {
             const response = await fetch(`${baseUrl}/tasks/${id}`, {
@@ -261,6 +333,7 @@ function TodosPage() {
         }
     };
 
+
     const completeTodo = async (id) => {
         const previousTodos = todoList;
         dispatch({type: TODO_ACTIONS.COMPLETE_TODO_OPTIMISTIC, payload: {id}});
@@ -350,6 +423,10 @@ function TodosPage() {
             </div>
 
             <div style={componentStyle.section}>
+                <StatusFilter/>
+            </div>
+
+            <div style={componentStyle.section}>
                 <TodoForm onAddTodo={addTodo}/>
             </div>
 
@@ -361,10 +438,13 @@ function TodosPage() {
 
             <TodoList
                 onCompleteTodo={completeTodo}
+                onReactivateTodo={reactivateTodo}
                 onUpdateTodo={updateTodo}
                 todoList={todoList}
                 dataVersion={dataVersion}
+                statusFilter={statusFilter}
             />
+
         </div>
     );
 
