@@ -42,7 +42,7 @@ export default function Header() {
     let navigate = useNavigate();
     return (
         <header style={componentStyle.header} className="header">
-            <h1 style={componentStyle.headerLeft}>Amir's Task Tracker</h1>
+            <h1 style={componentStyle.headerLeft}>Todo Tracker</h1>
             <Navigation></Navigation>
             <div className={"header-right"} style={componentStyle.headerRight}>
                 {isAuthenticated ? <button style={componentStyle.headerButton}

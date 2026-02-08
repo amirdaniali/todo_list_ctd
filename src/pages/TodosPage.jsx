@@ -14,6 +14,8 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 
 function TodosPage() {
+    // main app page showing existing todos and allowing user to add new ones
+
     const [state, dispatch] = useReducer(todoReducer, initialTodoState);
     const {
         todoList,
@@ -106,13 +108,9 @@ function TodosPage() {
                 });
             }
         })();
-        // match original dependencies so fetch runs exactly when the original did
-        // do NOT include isTodoListLoading here (it caused a loop)
     }, [token, sortBy, sortDirection, debouncedFilterTerm, fetchBlocked, dataVersion]);
 
-
-    // inside TodosPage.jsx (replace the existing helpers)
-
+    
     const postTodo = async (title) => {
         try {
             const response = await fetch(`${baseUrl}/tasks`, {

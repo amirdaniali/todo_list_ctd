@@ -48,15 +48,8 @@ const componentStyle = {
 };
 
 export default function AboutPage() {
-    const {isAuthenticated} = useAuth();
-    const navigate = useNavigate();
 
-    useEffect(() => {
-        if (!isAuthenticated) {
-            // Optionally redirect unauthenticated users
-            // navigate('/login', { replace: true });
-        }
-    }, [isAuthenticated, navigate]);
+    const navigate = useNavigate();
 
     return (
         <div style={componentStyle.container}>

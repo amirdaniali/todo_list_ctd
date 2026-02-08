@@ -15,10 +15,10 @@ export default function RequireAuth({children}) {
         }
     }, [location.pathname, isAuthenticated]);
 
-    // Redirect to login if not authenticated, preserving the intended path
+
     useEffect(() => {
         if (!isAuthenticated && lastRequestedPath) {
-            // console.log("Redirecting to login from...", lastRequestedPath);
+
             navigate("/login", {
                 replace: true,
                 state: {from: {pathname: lastRequestedPath}},
@@ -26,7 +26,6 @@ export default function RequireAuth({children}) {
         }
     }, [isAuthenticated, lastRequestedPath, navigate]);
 
-    // Show loading/redirecting state while checking auth
     if (!isAuthenticated) {
         return (
             <>

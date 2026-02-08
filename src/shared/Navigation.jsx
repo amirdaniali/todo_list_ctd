@@ -1,4 +1,3 @@
-// src/shared/Navigation.jsx
 import {NavLink} from 'react-router';
 import {useAuth} from '../contexts/AuthContext.jsx';
 
@@ -10,8 +9,6 @@ const navLinkStyle = ({isActive}) => ({
 
 const componentStyle = {
     navContainerStyle: {
-        // padding: '1rem 0',
-        // borderBottom: '1px solid #ddd',
         fontFamily: 'Verdana, sans-serif',
         fontSize: '1.2rem',
     },
@@ -32,7 +29,6 @@ export default function Navigation() {
     return (
         <nav style={componentStyle.navContainerStyle}>
             <ul style={componentStyle.navListStyle}>
-                {/* Always visible */}
                 <li>
                     <NavLink to="/about" style={navLinkStyle}>
                         About

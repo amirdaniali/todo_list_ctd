@@ -1,3 +1,7 @@
+# Response structure from BASEAPI
+
+```jakartadataql
+
 [
   {
     "id": 174,
@@ -32,3 +36,5 @@
 
 
 Object { id: 265, title: "21414", createdAt: "2026-01-16T00:18:24.130Z", priority: "medium", isCompleted: false }
+
+```

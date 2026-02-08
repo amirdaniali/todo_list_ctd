@@ -53,7 +53,6 @@ export function todoReducer(state, action) {
                 isTodoListLoading: true,
                 error: '',
                 filterError: '',
-                // don't clear fetchBlocked here; only INCREMENT_DATA_VERSION or CLEAR_ERROR should
             };
 
         case TODO_ACTIONS.FETCH_SUCCESS:
@@ -71,7 +70,6 @@ export function todoReducer(state, action) {
             return {
                 ...state,
                 isTodoListLoading: false,
-                // payload: { error, isFilterOrSort, status, blockFetch }
                 error: action.payload.isFilterOrSort ? state.error : action.payload.error,
                 filterError: action.payload.isFilterOrSort ? action.payload.error : state.filterError,
                 fetchBlocked: action.payload.blockFetch === true ? true : state.fetchBlocked,

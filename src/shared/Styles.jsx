@@ -65,4 +65,4 @@ const componentStyle = {
     }
 };
 
-export {componentStyle};
+export {componentStyle}; // used throughout the app

@@ -8,7 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 import RequireAuth from './components/RequireAuth';
 import Header from './shared/Header';
-import Logoff from "./features/Logoff.jsx";
+import LogoffOage from "./pages/LogoffOage.jsx";
 
 function App() {
     return (
@@ -31,7 +31,7 @@ function App() {
                     path='/logoff'
                     element={
                         <RequireAuth>
-                            <Logoff/>
+                            <LogoffOage/>
                         </RequireAuth>
                     }
                 />
