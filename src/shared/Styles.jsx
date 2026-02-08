@@ -6,7 +6,7 @@ const componentStyle = {
         background: "#ffffff",
         borderRadius: "12px",
         boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
-        fontFamily: "Arial, sans-serif",
+        fontFamily: "Verdana, sans-serif",
     },
 
     section: {

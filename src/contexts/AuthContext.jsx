@@ -30,7 +30,7 @@ export function AuthProvider({children}) {
 
             const res = await fetch(`${baseUrl}/user/logon`, options);
             const data = await res.json();
-            console.log("login response: " + JSON.stringify(data));
+            // console.log("login response: " + JSON.stringify(data));
 
             if (res.status === 200 && data.name && data.csrfToken) {
                 // Success: Update state
@@ -53,31 +53,36 @@ export function AuthProvider({children}) {
     };
 
 
-    const logout = async (userEmail = email, password) => {
+    const logout = async () => {
         try {
             const options = {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email: userEmail, password}),
                 credentials: 'include',
             };
 
             const res = await fetch(`${baseUrl}/user/logoff`, options);
-            const data = await res.json();
+            let data = null;
 
-            if (res.status === 200 && data.name && data.csrfToken) {
-                // Success: Update state
+            try {
+                data = await res.json();
+            } catch {
+                // if body is empty or not JSON, ignore
+            }
+
+            // Treat 200 as success, and also treat 401 as "already logged out"
+            if (res.status === 200 || res.status === 401) {
                 setEmail("");
                 setToken("");
                 return {success: true};
-            } else {
-                setEmail("");
-                setToken("");
-                return {
-                    success: false,
-                    error: `Authentication failed: ${data?.message}`,
-                };
             }
+
+            setEmail("");
+            setToken("");
+            return {
+                success: false,
+                error: data?.message || `Logout failed: ${res.status}`,
+            };
         } catch (error) {
             setEmail("");
             setToken("");
@@ -85,9 +90,6 @@ export function AuthProvider({children}) {
                 success: false,
                 error: 'Network error during logout',
             };
-        } finally {
-            setEmail("");
-            setToken("");
         }
     };
 

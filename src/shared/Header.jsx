@@ -1,4 +1,6 @@
 import {useAuth} from "../contexts/AuthContext.jsx";
+import Navigation from "./Navigation.jsx";
+import {useNavigate} from "react-router";
 
 const componentStyle = {
     header: {
@@ -22,6 +24,8 @@ const componentStyle = {
         marginRight: "10px",
 
     },
+    headerMiddle: {},
+
     headerButton: {
         padding: "10px",
         border: "none",
@@ -35,12 +39,14 @@ const componentStyle = {
 export default function Header() {
 
     let {token, isAuthenticated, logout} = useAuth();
+    let navigate = useNavigate();
     return (
         <header style={componentStyle.header} className="header">
-            <h1 style={componentStyle.headerLeft}>Todo List</h1>
+            <h1 style={componentStyle.headerLeft}>Amir's Task Tracker</h1>
+            <Navigation></Navigation>
             <div className={"header-right"} style={componentStyle.headerRight}>
                 {isAuthenticated ? <button style={componentStyle.headerButton}
-                                           onClick={logout}>Logout</button> : null}
+                                           onClick={() => navigate('/logoff')}>Logout</button> : null}
             </div>
 
 
