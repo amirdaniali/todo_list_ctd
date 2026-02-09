@@ -148,6 +148,134 @@ const componentStyle = {
             width: "100%",
         },
     },
+
+
+    profileHeader: {
+        marginBottom: "20px",
+    },
+
+    profileTitle: {
+        margin: 0,
+        color: "#222",
+    },
+
+    profileSubtitle: {
+        marginTop: "6px",
+        color: "#666",
+        fontSize: "14px",
+    },
+
+    profileSection: {
+        marginBottom: "24px",
+    },
+
+    profileSectionTitle: {
+        marginBottom: "10px",
+        color: "#333",
+    },
+
+    profileCard: {
+        padding: "16px 18px",
+        borderRadius: "10px",
+        backgroundColor: "#f9fafc",
+        border: "1px solid #e2e4ea",
+    },
+
+    profileParagraph: {
+        margin: "0 0 8px",
+    },
+
+    profileParagraphLast: {
+        margin: 0,
+    },
+
+    profileLoading: {
+        color: "#555",
+        margin: 0,
+    },
+
+    profileError: {
+        marginTop: 0,
+        marginBottom: "8px",
+        color: "#b30000",
+        fontSize: "14px",
+    },
+
+    profileEmpty: {
+        margin: 0,
+    },
+
+    profileStatsGrid: {
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+        gap: "10px",
+        fontSize: "14px",
+    },
+
+    profileStatsLabel: {
+        margin: "0 0 4px",
+        color: "#555",
+    },
+
+    profileStatsValue: {
+        margin: 0,
+        fontWeight: 600,
+    },
+
+    aboutContainer: {
+        maxWidth: "800px",
+        margin: "40px auto",
+        padding: "30px 24px",
+        borderRadius: "12px",
+        background: "#ffffff",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+    },
+
+    aboutTitle: {
+        fontSize: "24px",
+        fontWeight: "bold",
+        color: "#222",
+        marginBottom: "16px",
+        textAlign: "left",
+    },
+
+    aboutParagraph: {
+        marginBottom: "14px",
+        color: "#444",
+        fontSize: "14px",
+    },
+
+    aboutSubtitle: {
+        fontSize: "18px",
+        fontWeight: "bold",
+        marginTop: "24px",
+        marginBottom: "10px",
+        color: "#333",
+    },
+
+    aboutList: {
+        marginLeft: "20px",
+        marginBottom: "14px",
+        color: "#444",
+        fontSize: "14px",
+    },
+
+    aboutButtonWrapper: {
+        marginTop: "24px",
+    },
+
+    aboutButton: {
+        padding: "10px 16px",
+        border: "none",
+        borderRadius: "6px",
+        backgroundColor: "#007bff",
+        color: "#fff",
+        cursor: "pointer",
+        fontSize: "14px",
+        transition: "background-color 0.2s ease",
+    },
 };
 
 export {componentStyle};
+
+

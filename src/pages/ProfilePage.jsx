@@ -1,5 +1,6 @@
 import {useState, useEffect} from "react";
 import {useAuth} from "../contexts/AuthContext.jsx";
+import {componentStyle} from "../shared/Styles.jsx";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -60,42 +61,91 @@ export default function ProfilePage() {
         total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return (
-        <>
-            <h2>Profile Page</h2>
-            <p>You can only see this page if you are logged in</p>
+        <div style={componentStyle.page}>
+            <div style={componentStyle.layout}>
+                <div
+                    style={componentStyle.mainContent}
+                >
+                    <header style={componentStyle.profileHeader}>
+                        <h2 style={componentStyle.profileTitle}>Profile</h2>
+                        <p style={componentStyle.profileSubtitle}>
+                            You can only see this page if you are logged in.
+                        </p>
+                    </header>
 
-            <section>
-                <h3>Account</h3>
-                <p>
-                    <strong>Email:</strong> {email}
-                </p>
-                <p>
-                    <strong>Status:</strong> {token ? "Authenticated" : "Not authenticated"}
-                </p>
-            </section>
+                    <section style={componentStyle.profileSection}>
+                        <h3 style={componentStyle.profileSectionTitle}>Account</h3>
+                        <div style={componentStyle.profileCard}>
+                            <p style={componentStyle.profileParagraph}>
+                                <strong>Email:</strong> {email}
+                            </p>
+                            <p style={componentStyle.profileParagraphLast}>
+                                <strong>Status:</strong>{" "}
+                                {token ? "Authenticated" : "Not authenticated"}
+                            </p>
+                        </div>
+                    </section>
 
-            <section>
-                <h3>Todo Statistics</h3>
+                    <section style={componentStyle.profileSection}>
+                        <h3 style={componentStyle.profileSectionTitle}>Todo Statistics</h3>
 
-                {loading && <p>Loading statistics...</p>}
+                        <div style={componentStyle.profileCard}>
+                            {loading && (
+                                <p style={componentStyle.profileLoading}>
+                                    Loading statistics...
+                                </p>
+                            )}
 
-                {error && <p style={{color: "red"}}>{error}</p>}
+                            {error && (
+                                <p style={componentStyle.profileError}>{error}</p>
+                            )}
 
-                {!loading && !error && (
-                    <>
-                        {total === 0 ? (
-                            <p>You have no todos yet.</p>
-                        ) : (
-                            <>
-                                <p>Total todos: {total}</p>
-                                <p>Completed todos: {completed}</p>
-                                <p>Active todos: {active}</p>
-                                <p>Completion: {completionPercent}%</p>
-                            </>
-                        )}
-                    </>
-                )}
-            </section>
-        </>
+                            {!loading && !error && (
+                                <>
+                                    {total === 0 ? (
+                                        <p style={componentStyle.profileEmpty}>
+                                            You have no todos yet.
+                                        </p>
+                                    ) : (
+                                        <div style={componentStyle.profileStatsGrid}>
+                                            <div>
+                                                <p style={componentStyle.profileStatsLabel}>
+                                                    Total todos
+                                                </p>
+                                                <p style={componentStyle.profileStatsValue}>
+                                                    {total}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p style={componentStyle.profileStatsLabel}>
+                                                    Completed
+                                                </p>
+                                                <p style={componentStyle.profileStatsValue}>
+                                                    {completed}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p style={componentStyle.profileStatsLabel}>Active</p>
+                                                <p style={componentStyle.profileStatsValue}>
+                                                    {active}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p style={componentStyle.profileStatsLabel}>
+                                                    Completion
+                                                </p>
+                                                <p style={componentStyle.profileStatsValue}>
+                                                    {completionPercent}%
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
     );
 }
