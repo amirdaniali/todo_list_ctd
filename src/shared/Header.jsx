@@ -4,9 +4,6 @@ import {useNavigate} from "react-router";
 
 const componentStyle = {
     header: {
-        color: "#333",
-        margin: "20px 0",
-        paddingBottom: "10px",
         borderBottom: "2px solid #007bff",
         display: "flex",
         justifyContent: "space-between",

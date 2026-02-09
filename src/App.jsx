@@ -9,6 +9,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import RequireAuth from './components/RequireAuth';
 import Header from './shared/Header';
 import LogoffOage from "./pages/LogoffOage.jsx";
+import Footer from "./shared/Footer.jsx";
 
 function App() {
     return (
@@ -45,6 +46,7 @@ function App() {
                 />
                 <Route path='*' element={<NotFoundPage/>}/>
             </Routes>
+            <Footer/>
         </>
     );
 }
