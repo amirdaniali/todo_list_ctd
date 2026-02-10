@@ -25,38 +25,59 @@ const componentStyle = {
     }
 };
 
-export default function TodoListItem({todo, style, onCompleteTodo, onUpdateTodo}) {
+export default function TodoListItem({
+                                         todo,
+                                         style,
+                                         onCompleteTodo,
+                                         onUpdateTodo,
+                                         onReactivateTodo,
+                                     }) {
     let [isEditing, setIsEditing] = useState(false);
     let [workingTitle, setWorkingTitle] = useState(todo.title);
 
-
-    let handleCancel = () => {
+    const handleCancel = () => {
         setWorkingTitle(todo.title);
         setIsEditing(false);
-    }
+    };
 
-    let handleEdit = (event) => {
+    const handleEdit = (event) => {
         setWorkingTitle(event.target.value);
-    }
+    };
 
-    let handleUpdate = (event) => {
-        if (!isEditing) {
-            return
-        }
+    const handleUpdate = (event) => {
+        if (!isEditing) return;
         event.preventDefault();
         onUpdateTodo({...todo, title: workingTitle.trim()});
         setIsEditing(false);
-    }
+    };
 
+    const handleCheckboxChange = () => {
+        if (todo.isCompleted) {
+            // was completed, now uncheck → free/reactivate
+            onReactivateTodo(todo.id);
+        } else {
+            // was active, now check → complete
+            onCompleteTodo(todo.id);
+        }
+    };
 
     let editingInput = (
         <>
             <TextInputWithLabel value={workingTitle} onChange={handleEdit}/>
-            <button type="button" style={{...componentStyle.button, ...componentStyle.buttonSecondary}}
-                    onClick={handleCancel}>Cancel
+            <button
+                type="button"
+                style={{...componentStyle.button, ...componentStyle.buttonSecondary}}
+                onClick={handleCancel}
+            >
+                Cancel
             </button>
-            <button type="button" disabled={!isValidTodoTitle(workingTitle)} style={componentStyle.button}
-                    onClick={handleUpdate}>Update
+            <button
+                type="button"
+                disabled={!isValidTodoTitle(workingTitle)}
+                style={componentStyle.button}
+                onClick={handleUpdate}
+            >
+                Update
             </button>
         </>
     );
@@ -66,20 +87,20 @@ export default function TodoListItem({todo, style, onCompleteTodo, onUpdateTodo}
             <input
                 type="checkbox"
                 checked={todo.isCompleted}
-                onChange={() => onCompleteTodo(todo.id)}
+                onChange={handleCheckboxChange}
                 style={componentStyle.checkbox}
             />
             <span style={componentStyle.title} onClick={() => setIsEditing(true)}>
-                {todo.title}
-            </span>
+        {todo.title}
+      </span>
         </>
     );
 
+    // return either the editing form or the editable text input
+
     return (
         <li style={style}>
-            <form>
-                {isEditing ? editingInput : editableTextInput}
-            </form>
+            <form>{isEditing ? editingInput : editableTextInput}</form>
         </li>
     );
 }

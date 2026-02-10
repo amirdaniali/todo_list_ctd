@@ -15,6 +15,11 @@ export const TODO_ACTIONS = {
     COMPLETE_TODO_ROLLBACK: 'COMPLETE_TODO_ROLLBACK',
     COMPLETE_TODO_SUCCESS: 'COMPLETE_TODO_SUCCESS',
 
+    REOPEN_TODO_OPTIMISTIC: 'REOPEN_TODO_OPTIMISTIC',
+    REOPEN_TODO_ROLLBACK: 'REOPEN_TODO_ROLLBACK',
+    REOPEN_TODO_SUCCESS: 'REOPEN_TODO_SUCCESS',
+
+
     SET_SORT: 'SET_SORT',
     SET_SORT_DIRECTION: 'SET_SORT_DIRECTION',
     SET_FILTER_TERM: 'SET_FILTER_TERM',
@@ -48,7 +53,6 @@ export function todoReducer(state, action) {
                 isTodoListLoading: true,
                 error: '',
                 filterError: '',
-                // don't clear fetchBlocked here; only INCREMENT_DATA_VERSION or CLEAR_ERROR should
             };
 
         case TODO_ACTIONS.FETCH_SUCCESS:
@@ -66,7 +70,6 @@ export function todoReducer(state, action) {
             return {
                 ...state,
                 isTodoListLoading: false,
-                // payload: { error, isFilterOrSort, status, blockFetch }
                 error: action.payload.isFilterOrSort ? state.error : action.payload.error,
                 filterError: action.payload.isFilterOrSort ? action.payload.error : state.filterError,
                 fetchBlocked: action.payload.blockFetch === true ? true : state.fetchBlocked,
@@ -135,6 +138,32 @@ export function todoReducer(state, action) {
                 ...state,
                 error: '',
             };
+
+
+        case TODO_ACTIONS.REOPEN_TODO_OPTIMISTIC:
+            return {
+                ...state,
+                todoList: state.todoList.map((t) =>
+                    t.id === action.payload.id ? {...t, isCompleted: false} : t
+                ),
+                error: '',
+            };
+
+        case TODO_ACTIONS.REOPEN_TODO_ROLLBACK:
+            return {
+                ...state,
+                todoList: action.payload.previousTodos,
+                error:
+                    action.payload.error ||
+                    'There was an error syncing the todo with the server.',
+            };
+
+        case TODO_ACTIONS.REOPEN_TODO_SUCCESS:
+            return {
+                ...state,
+                error: '',
+            };
+
 
         case TODO_ACTIONS.SET_SORT:
             return {

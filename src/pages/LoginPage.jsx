@@ -1,5 +1,6 @@
-import {useState} from "react";
-import {useAuth} from "../../contexts/AuthContext.jsx";
+import {useState, useEffect} from 'react';
+import {useNavigate, useLocation} from 'react-router';
+import {useAuth} from '../contexts/AuthContext';
 
 const componentStyle = {
     container: {
@@ -55,14 +56,26 @@ const componentStyle = {
     }
 };
 
-export default function Logon() {
+export default function LoginPage() {
+    const {login, isAuthenticated} = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
+
     let [email, setEmail] = useState("");
     let [password, setPassword] = useState("");
     let [authError, setAuthError] = useState("");
     let [isLoggingOn, setIsLoggingOn] = useState(false);
 
-    let {login} = useAuth();
+    const from = location.state?.from?.pathname || '/todos';
 
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate(from, {replace: true});
+        }
+    }, [isAuthenticated, navigate, from]);
+
+    // Handle login form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isLoggingOn) return;

@@ -1,6 +1,5 @@
 const componentStyle = {
     label: {
-        // display: "None",
         fontWeight: "bold",
         marginBottom: "5px",
         textAlign: "center",
