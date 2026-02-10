@@ -46,7 +46,7 @@ const componentStyle = {
     }
 };
 
-export default function LogoffOage() {
+export default function LogoffPage() {
     const [isLoggingOff, setIsLoggingOff] = useState(false);
     const [error, setError] = useState("");
 
