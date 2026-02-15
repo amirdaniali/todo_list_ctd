@@ -19,10 +19,10 @@ export function AuthProvider({children}) {
 
     const login = async (userEmail, password) => {
         try {
-            if (email === "demo@amirdaniali.com" && password === "demo") {
-                alert("Welcome to the demo account! Sample todos have been added to your list but sync with server is not yet implemented.");
+            if (userEmail === "demo@amirdaniali.com" && password === "demo") {
+                console.log(userEmail);
                 setEmail("demo@amirdaniali.com");
-                setToken("");
+                setToken("demo");
                 return {success: true};
             }
 
