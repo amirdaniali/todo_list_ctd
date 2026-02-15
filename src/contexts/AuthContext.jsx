@@ -19,6 +19,13 @@ export function AuthProvider({children}) {
 
     const login = async (userEmail, password) => {
         try {
+            if (email === "demo@amirdaniali.com" && password === "demo") {
+                alert("Welcome to the demo account! Sample todos have been added to your list but sync with server is not yet implemented.");
+                setEmail("demo@amirdaniali.com");
+                setToken("");
+                return {success: true};
+            }
+
             const options = {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -97,6 +104,7 @@ export function AuthProvider({children}) {
         email,
         token,
         isAuthenticated: !!token,
+        isDemoAccount: email === "demo@amirdaniali.com",
         login,
         logout,
     };
