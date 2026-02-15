@@ -8,10 +8,10 @@ export default function RequireAuth({children}) {
     const {isAuthenticated} = useAuth();
     const [lastRequestedPath, setLastRequestedPath] = useState(null);
 
-    // Save the path the user is trying to access
+
     useEffect(() => {
         if (!isAuthenticated) {
-            setLastRequestedPath(location.pathname);
+            setLastRequestedPath("/todos");
         }
     }, [location.pathname, isAuthenticated]);
 

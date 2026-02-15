@@ -1,3 +1,5 @@
+import {useAuth} from "../contexts/AuthContext.jsx";
+
 export const TODO_ACTIONS = {
     FETCH_START: 'FETCH_START',
     FETCH_SUCCESS: 'FETCH_SUCCESS',
@@ -45,7 +47,111 @@ export const initialTodoState = {
     lastFetchStatus: null,
 };
 
+export function offlineReducer(state = initialTodoState, action) {
+
+    switch (action.type) {
+        case TODO_ACTIONS.FETCH_START:
+            return {...state, isTodoListLoading: true, error: ''};
+
+        case TODO_ACTIONS.FETCH_SUCCESS:
+            return {
+                ...state,
+                isTodoListLoading: false,
+                todoList: action.payload?.todos || state.todoList,
+                error: '',
+                filterError: '',
+            };
+
+        case TODO_ACTIONS.FETCH_ERROR:
+            return {...state, isTodoListLoading: false};
+
+        case TODO_ACTIONS.ADD_TODO_OPTIMISTIC:
+            return {
+                ...state,
+                todoList: [
+                    {...action.payload.todo, id: crypto.randomUUID?.() || `demo-${Date.now()}`},
+                    ...state.todoList,
+                ],
+                error: '',
+            };
+
+        case TODO_ACTIONS.UPDATE_TODO_OPTIMISTIC:
+            return {
+                ...state,
+                todoList: state.todoList.map((t) =>
+                    t.id === action.payload.id ? action.payload.updated : t
+                ),
+                error: '',
+            };
+
+        case TODO_ACTIONS.COMPLETE_TODO_OPTIMISTIC:
+            return {
+                ...state,
+                todoList: state.todoList.map((t) =>
+                    t.id === action.payload.id ? {...t, isCompleted: true} : t
+                ),
+            };
+
+        case TODO_ACTIONS.REOPEN_TODO_OPTIMISTIC:
+            return {
+                ...state,
+                todoList: state.todoList.map((t) =>
+                    t.id === action.payload.id ? {...t, isCompleted: false} : t
+                ),
+            };
+
+        // Skip all server rollback/success logic
+        case TODO_ACTIONS.ADD_TODO_ROLLBACK:
+        case TODO_ACTIONS.UPDATE_TODO_ROLLBACK:
+        case TODO_ACTIONS.COMPLETE_TODO_ROLLBACK:
+        case TODO_ACTIONS.REOPEN_TODO_ROLLBACK:
+        case TODO_ACTIONS.ADD_TODO_SUCCESS:
+        case TODO_ACTIONS.UPDATE_TODO_SUCCESS:
+        case TODO_ACTIONS.COMPLETE_TODO_SUCCESS:
+        case TODO_ACTIONS.REOPEN_TODO_SUCCESS:
+            return state;
+
+        // UI-only actions stay consistent
+        case TODO_ACTIONS.SET_SORT:
+            return {...state, sortBy: action.payload};
+
+        case TODO_ACTIONS.SET_SORT_DIRECTION:
+            return {...state, sortDirection: action.payload};
+
+        case TODO_ACTIONS.SET_FILTER_TERM:
+            return {...state, filterTerm: action.payload};
+
+        case TODO_ACTIONS.CLEAR_FILTER_ERROR:
+            return {...state, filterError: ''};
+
+        case TODO_ACTIONS.CLEAR_ERROR:
+            return {...state, error: '', fetchBlocked: false, lastFetchStatus: null};
+
+        case TODO_ACTIONS.RESET_FILTERS:
+            return {
+                ...state,
+                filterTerm: '',
+                sortBy: 'creationDate',
+                sortDirection: 'desc',
+                filterError: '',
+            };
+
+        case TODO_ACTIONS.INCREMENT_DATA_VERSION:
+            return {...state, dataVersion: state.dataVersion + 1};
+
+        default:
+            return state;
+
+    }
+}
+
 export function todoReducer(state, action) {
+    const {isDemoAccount} = useAuth();
+
+    // Early returns for demo mode — no server communication
+    if (isDemoAccount) {
+        return (offlineReducer(state, action));
+    }
     switch (action.type) {
         case TODO_ACTIONS.FETCH_START:
             return {

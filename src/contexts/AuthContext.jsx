@@ -19,6 +19,13 @@ export function AuthProvider({children}) {
 
     const login = async (userEmail, password) => {
         try {
+            if (userEmail === "demo@amirdaniali.com" && password === "demo") {
+                console.log(userEmail);
+                setEmail("demo@amirdaniali.com");
+                setToken("demo");
+                return {success: true};
+            }
+
             const options = {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -97,6 +104,7 @@ export function AuthProvider({children}) {
         email,
         token,
         isAuthenticated: !!token,
+        isDemoAccount: email === "demo@amirdaniali.com",
         login,
         logout,
     };

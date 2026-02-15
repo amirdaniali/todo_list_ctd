@@ -81,6 +81,9 @@ export default function LoginPage() {
         if (isLoggingOn) return;
 
         setIsLoggingOn(true);
+
+        setAuthError("");
+        email = email.trim().toLowerCase().replace(/\s+/g, "")
         let result = await login(email, password);
         setIsLoggingOn(false);
 
@@ -91,42 +94,49 @@ export default function LoginPage() {
         }
     };
 
-    return (
-        <div style={componentStyle.container}>
-            {authError && <span style={componentStyle.error}>Error: {authError}</span>}
+    return (<>
+            <div style={componentStyle.container}>
+                {authError && <span style={componentStyle.error}>Error: {authError}</span>}
 
-            <form onSubmit={handleSubmit}>
-                <div style={componentStyle.formGroup}>
-                    <label htmlFor="email" style={componentStyle.label}>Email</label>
-                    <input
-                        id="email"
-                        type="email"
-                        style={componentStyle.input}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </div>
 
-                <div style={componentStyle.formGroup}>
-                    <label htmlFor="password" style={componentStyle.label}>Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        style={componentStyle.input}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </div>
+                <form onSubmit={handleSubmit}>
+                    <div style={componentStyle.formGroup}>
+                        <label htmlFor="email" style={componentStyle.label}>Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            style={componentStyle.input}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </div>
 
-                <button
-                    type="submit"
-                    style={{
-                        ...componentStyle.button,
-                        ...(isLoggingOn ? componentStyle.buttonDisabled : {})
-                    }}
-                    disabled={isLoggingOn}
-                >
-                    {isLoggingOn ? "Logging in..." : "Log On"}
-                </button>
-            </form>
-        </div>
+                    <div style={componentStyle.formGroup}>
+                        <label htmlFor="password" style={componentStyle.label}>Password</label>
+                        <input
+                            id="password"
+                            type="password"
+                            style={componentStyle.input}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        style={{
+                            ...componentStyle.button,
+                            ...(isLoggingOn ? componentStyle.buttonDisabled : {})
+                        }}
+                        disabled={isLoggingOn}
+                    >
+                        {isLoggingOn ? "Logging in..." : "Log On"}
+                    </button>
+                </form>
+
+            </div>
+            <p style={{textAlign: "center", color: "#000", fontSize: "1rem"}}>If you dont have an account/pass,
+                Try the demo account with <br/>
+                Email: <code style={{color: "#007bff"}}>demo@amirdaniali.com</code> <br/>Password: <code
+                    style={{color: "#007bff"}}>demo </code></p></>
+        //todo add demo account functionalities
     );
 }
