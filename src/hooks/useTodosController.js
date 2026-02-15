@@ -340,6 +340,7 @@ export function useTodosController(statusFilter) {
                 console.error('[useTodosController] addTodo offline persist error:', e);
             }
             return;
+            
         }
 
         try {
