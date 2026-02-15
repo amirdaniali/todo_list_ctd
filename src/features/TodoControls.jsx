@@ -1,8 +1,8 @@
-import React from "react";
-import SortBy from "../shared/sortBy.jsx";
-import StatusFilter from "../shared/StatusFilter.jsx";
-import FilterInput from "../shared/FilterInput.jsx";
-import {componentStyle} from "../shared/Styles.jsx";
+import React from 'react';
+import SortBy from '../shared/sortBy.jsx';
+import StatusFilter from '../shared/StatusFilter.jsx';
+import FilterInput from '../shared/FilterInput.jsx';
+import {componentStyle} from '../shared/Styles.jsx';
 
 export default function TodoControls({
                                          sortBy,
@@ -16,12 +16,32 @@ export default function TodoControls({
                                          filterError,
                                          onClearError,
                                          onClearFilterError,
+                                         offlineMode,
+                                         effectiveOffline,
+                                         isDemoAccount,
+                                         onToggleOffline,
                                      }) {
     const hasError = Boolean(error || filterError);
     const canReset = Boolean(filterTerm);
 
     return (
         <aside style={componentStyle.sidebar}>
+            <div style={{marginBottom: '8px'}}>
+                <button
+                    style={componentStyle.button}
+                    type="button"
+                    onClick={onToggleOffline}
+                    disabled={isDemoAccount}
+                >
+                    {effectiveOffline ? 'Switch to Online Mode' : 'Use Offline Mode'}
+                </button>
+                {isDemoAccount && (
+                    <p style={{marginTop: '4px', fontSize: '0.85rem'}}>
+                        Demo account always uses offline storage.
+                    </p>
+                )}
+            </div>
+
             <div style={componentStyle.controlsGroup}>
                 <SortBy
                     sortBy={sortBy}

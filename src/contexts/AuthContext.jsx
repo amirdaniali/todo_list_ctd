@@ -13,37 +13,32 @@ export function useAuth() {
 }
 
 export function AuthProvider({children}) {
-    // State for authentication
     const [email, setEmail] = useState('');
     const [token, setToken] = useState('');
 
     const login = async (userEmail, password) => {
         try {
-            if (userEmail === "demo@amirdaniali.com" && password === "demo") {
-                console.log(userEmail);
-                setEmail("demo@amirdaniali.com");
-                setToken("demo");
+            if (userEmail === 'demo@amirdaniali.com' && password === 'demo') {
+                setEmail('demo@amirdaniali.com');
+                setToken('demo');
                 return {success: true};
             }
 
             const options = {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email: userEmail, password: password}),
+                body: JSON.stringify({email: userEmail, password}),
                 credentials: 'include',
             };
 
             const res = await fetch(`${baseUrl}/user/logon`, options);
             const data = await res.json();
-            // console.log("login response: " + JSON.stringify(data));
 
             if (res.status === 200 && data.name && data.csrfToken) {
-                // Success: Update state
                 setEmail(data.name);
                 setToken(data.csrfToken);
                 return {success: true};
             } else {
-                // Failure: Return error
                 return {
                     success: false,
                     error: `Authentication failed: ${data?.message}`,
@@ -56,7 +51,6 @@ export function AuthProvider({children}) {
             };
         }
     };
-
 
     const logout = async () => {
         try {
@@ -72,25 +66,23 @@ export function AuthProvider({children}) {
             try {
                 data = await res.json();
             } catch {
-                // if body is empty or not JSON, ignore
             }
 
-            // Treat 200 as success, and also treat 401 as "already logged out"
             if (res.status === 200 || res.status === 401) {
-                setEmail("");
-                setToken("");
+                setEmail('');
+                setToken('');
                 return {success: true};
             }
 
-            setEmail("");
-            setToken("");
+            setEmail('');
+            setToken('');
             return {
                 success: false,
                 error: data?.message || `Logout failed: ${res.status}`,
             };
         } catch (error) {
-            setEmail("");
-            setToken("");
+            setEmail('');
+            setToken('');
             return {
                 success: false,
                 error: 'Network error during logout',
@@ -98,20 +90,14 @@ export function AuthProvider({children}) {
         }
     };
 
-
-    // Context value object
     const value = {
         email,
         token,
         isAuthenticated: !!token,
-        isDemoAccount: email === "demo@amirdaniali.com",
+        isDemoAccount: email === 'demo@amirdaniali.com',
         login,
         logout,
     };
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
